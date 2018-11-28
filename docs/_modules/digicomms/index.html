@@ -1,0 +1,335 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>digicomms &#8212; digicomms 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for digicomms</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sig</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<div class="viewcode-block" id="Signal"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal">[docs]</a><span class="k">class</span> <span class="nc">Signal</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a signal from its samples.</span>
+
+<span class="sd">        Patameters:</span>
+
+<span class="sd">            samples : ndarray</span>
+<span class="sd">                sampled values of signal</span>
+
+<span class="sd">            start : float or int</span>
+<span class="sd">                start time of signal</span>
+
+<span class="sd">            period : float or int</span>
+<span class="sd">                time between samples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start</span>  <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_period</span> <span class="o">=</span> <span class="n">period</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the sample values of the signal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of samples of the signal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">period</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the period between samples of the signal, in seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_period</span>
+    
+    <span class="nd">@period</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">period</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_period</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of samples in the signal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Shape of sample array. By convention, the first dimensions should always be</span>
+<span class="sd">the time index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sample rate of the signal in Hz&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        End of the signal, in seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start time of the signal, in seconds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start</span>
+
+    <span class="nd">@start</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start</span> <span class="o">=</span> <span class="n">value</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">period</span>
+    
+    <span class="nd">@duration</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the total duration of the signal, in seconds.  </span>
+
+<span class="sd">        Note: changes the signal&#39;s period, rate, and end.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_period</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Array of sample times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span>
+    
+<div class="viewcode-block" id="Signal.plot"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ax</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">n_channels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_channels</span><span class="p">):</span>
+                <span class="n">channel_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[:,</span><span class="n">chan</span><span class="p">]</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="n">channel_samples</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">ax</span></div>
+            
+<div class="viewcode-block" id="Signal.apply"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a signal $x(t)$, a function $f:R-&gt;R$, compute $y = f(a*x)$</span>
+
+<span class="sd">        y = f((x-loc)/scale)</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            f : function</span>
+<span class="sd">            scale : float or int</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            y : signal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_samples</span> <span class="o">=</span> <span class="n">f</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span> <span class="o">-</span> <span class="n">loc</span><span class="p">)</span><span class="o">/</span><span class="n">scale</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Signal</span><span class="p">(</span><span class="n">new_samples</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Signal.convolve"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal.convolve">[docs]</a>    <span class="k">def</span> <span class="nf">convolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span><span class="p">,</span><span class="n">h</span><span class="o">.</span><span class="n">period</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;signal periods differ&quot;</span><span class="p">)</span>
+            
+        <span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">period</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">start</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span><span class="n">h</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span> <span class="o">*</span> <span class="n">period</span>
+        <span class="k">return</span> <span class="n">Signal</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">period</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Signal.matched_filter"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal.matched_filter">[docs]</a>    <span class="k">def</span> <span class="nf">matched_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">symbol_period</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">+</span> <span class="n">symbol_period</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Signal</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Signal.modulate"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal.modulate">[docs]</a>    <span class="k">def</span> <span class="nf">modulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">symbol_rate</span><span class="p">):</span>
+        <span class="c1"># &quot;&quot;&quot;</span>
+        <span class="c1"># Modulate a sequence of amplitudes at the given symbol rate.</span>
+        <span class="c1"># Parameters:</span>
+        <span class="c1">#     a : ndarray(float)</span>
+        <span class="c1">#         Sequence of amplitudes.</span>
+        <span class="c1">#     Tb : float</span>
+        <span class="c1">#         Symbol period. Should be integral multiple of the sampling rate Ts.</span>
+        <span class="c1"># Returns:</span>
+        <span class="c1">#     y : Signal</span>
+        <span class="c1">#         Modulated signal</span>
+        <span class="c1"># &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span></div></div>
+    
+<div class="viewcode-block" id="trange"><a class="viewcode-back" href="../../digicomms/#digicomms.trange">[docs]</a><span class="k">def</span> <span class="nf">trange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">period</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">    Return the identity signal, i.e., x(t) = t</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        start : float</span>
+<span class="sd">            start time of the signal, in seconds</span>
+<span class="sd">        period : float</span>
+<span class="sd">            period between samples of the signal, in seconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span> <span class="o">*</span> <span class="n">period</span>
+    <span class="k">return</span> <span class="n">Signal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">period</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="lowpass_filter"><a class="viewcode-back" href="../../digicomms/#digicomms.lowpass_filter">[docs]</a><span class="k">def</span> <span class="nf">lowpass_filter</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">W</span><span class="p">,</span><span class="n">Ts</span><span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="o">-</span><span class="n">N</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">Ts</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">-</span><span class="n">N</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">Ts</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Signal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">Ts</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="rcos"><a class="viewcode-back" href="../../digicomms/#digicomms.rcos">[docs]</a><span class="k">def</span> <span class="nf">rcos</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">alpha</span><span class="p">))</span>
+        <span class="n">f2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">alpha</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">alpha</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">cond1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span><span class="p">),</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">alpha</span><span class="p">))</span>
+        <span class="n">cond2</span> <span class="o">=</span> <span class="o">~</span><span class="n">cond1</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">piecewise</span><span class="p">(</span><span class="n">t</span><span class="p">,[</span><span class="n">cond1</span><span class="p">,</span><span class="n">cond2</span><span class="p">],[</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="rrcos"><a class="viewcode-back" href="../../digicomms/#digicomms.rrcos">[docs]</a><span class="k">def</span> <span class="nf">rrcos</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised cosine pulse. Note: </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">b0</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">b1</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">c0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">c1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">alpha</span>
+        <span class="n">cond1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">cond2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span><span class="p">),</span><span class="mi">1</span><span class="o">/</span><span class="n">s0</span><span class="p">)</span>
+        <span class="n">cond3</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">cond1</span><span class="o">|</span><span class="n">cond2</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="o">+</span><span class="n">alpha</span><span class="o">*</span><span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">f2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">alpha</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">b0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">s0</span><span class="p">)</span><span class="o">+</span><span class="n">b1</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">s0</span><span class="p">)))</span>
+        <span class="n">f3</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">c0</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">s0</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">c1</span><span class="o">*</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">s0</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">piecewise</span><span class="p">(</span><span class="n">t</span><span class="p">,[</span><span class="n">cond1</span><span class="p">,</span><span class="n">cond2</span><span class="p">,</span><span class="n">cond3</span><span class="p">],[</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">,</span><span class="n">f3</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="comb"><a class="viewcode-back" href="../../digicomms/#digicomms.comb">[docs]</a><span class="k">def</span> <span class="nf">comb</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span><span class="o">|</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">y</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="id"><a class="viewcode-back" href="../../digicomms/#digicomms.id">[docs]</a><span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span><span class="n">period</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span> <span class="o">*</span> <span class="n">period</span>
+    <span class="k">return</span> <span class="n">Signal</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">period</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="qfunc"><a class="viewcode-back" href="../../digicomms/#digicomms.qfunc">[docs]</a><span class="k">def</span> <span class="nf">qfunc</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+<div class="viewcode-block" id="qfuncinv"><a class="viewcode-back" href="../../digicomms/#digicomms.qfuncinv">[docs]</a><span class="k">def</span> <span class="nf">qfuncinv</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../">digicomms</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../digicomms/">digicomms package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/">digicomms</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../">Documentation overview</a><ul>
+  <li><a href="../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Timothy Eldridge.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
