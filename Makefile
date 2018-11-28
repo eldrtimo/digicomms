@@ -2,23 +2,11 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    = 
-SPHINXBUILD   = sphinx-build
-SOURCEDIR     = sphinx/source
-BUILDDIR      = spinx/build
+SOURCEDIR     = sphinx
 HTMLDIR       = docs
 PYMODULE      = digicomms
 
-# Put it first so that "make" without argument is like "make help".
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
+.PHONY: docs
 docs:
-	sphinx-apidoc -o "$(SOURCEDIR)" "$(PYMODULE)"
-	$(SPHINXBUILD) -b dirhtml "$(SOURCEDIR)" "$(HTMLDIR)"
-
-.PHONY: help Makefile docs
-
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	sphinx-apidoc -o $(SOURCEDIR) $(PYMODULE)
+	sphinx-build -b dirhtml $(SOURCEDIR) $(HTMLDIR)
