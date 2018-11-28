@@ -10,10 +10,13 @@ class Signal():
         Create a signal from its samples.
 
         Patameters:
+
             samples : ndarray
                 sampled values of signal
+
             start : float or int
                 start time of signal
+
             period : float or int
                 time between samples
         """
@@ -129,7 +132,7 @@ the time index.
             f : function
             scale : float or int
         Returns:
-            
+            y : signal
         """
         new_samples = f((self.samples - loc)/scale)
         return Signal(new_samples,self.start,self.period)
@@ -148,47 +151,19 @@ the time index.
         samples = np.flip(self.samples,0)
         return Signal(samples,start,self.period)
     
-    def modulate(self,a,Tb):
-        """
-        Modulate a sequence of amplitudes at the given symbol rate.
-        Parameters:
-            a : ndarray(float)
-                Sequence of amplitudes.
-            Tb : float
-                Symbol period. Should be integral multiple of the sampling rate Ts.
-                
-        Returns:
-            y : Signal
-                Modulated signal
-        """
-        x = Signal(sig.upfirdn([1/self.Ts],a,up=int(Tb/self.Ts)),0,self.Ts)
-        return self.convolve(x)
-    
-    def crop(self,start,N):
-        """
-        Crop signal to the time range [a,b).
-        Parameters:
-            a : float
-                Start time.
-            b : float
-                End time.            
-        Returns:
-            x : Signal
-                Cropped signal.
-        """
-        start_idx = np.searchsorted(self.t,start)
-        return Signal(self.samples[start_idx:start_idx+N],start,self.Ts)
-    
-    def discretize(self,Ts,delay):
-        """
-        Generate the sampled signal $x[n] = x((n + \epsilon)T)$
-        """
-        t = self.t
-        x = self.x
-        pass
-    
-    def demux(M):
-        pass
+    def modulate(self,a,symbol_rate):
+        # """
+        # Modulate a sequence of amplitudes at the given symbol rate.
+        # Parameters:
+        #     a : ndarray(float)
+        #         Sequence of amplitudes.
+        #     Tb : float
+        #         Symbol period. Should be integral multiple of the sampling rate Ts.
+        # Returns:
+        #     y : Signal
+        #         Modulated signal
+        # """
+        return 0
     
 def trange(n_samples, start = 0, period = 1):
     """"
@@ -247,8 +222,8 @@ def comb(t,T,**kwds):
     return y.astype(t.dtype)
 
 def id(n_samples,period=1.0,start=0):
-    x = start + np.arange(n_samples) * period
-    return Signal(x,start,period)
+    samples = start + np.arange(n_samples) * period
+    return Signal(samples,start,period)
 
 def qfunc(x): return stats.norm.sf(x,loc=0,scale=1)
 def qfuncinv(x): return stats.norm.ppf(-x + 1)
