@@ -151,18 +151,19 @@ the time index.
         samples = np.flip(self.samples,0)
         return Signal(samples,start,self.period)
     
-    def modulate(self,a,symbol_rate):
-        # """
-        # Modulate a sequence of amplitudes at the given symbol rate.
-        # Parameters:
-        #     a : ndarray(float)
-        #         Sequence of amplitudes.
-        #     Tb : float
-        #         Symbol period. Should be integral multiple of the sampling rate Ts.
-        # Returns:
-        #     y : Signal
-        #         Modulated signal
-        # """
+    def modulate(self,symbols,symbol_rate):
+        """
+        Modulate a sequence of amplitudes at the given symbol rate.
+
+        Parameters:
+            symbols : ndarray, float or int
+                sequence of symbols, i.e., amplitudes, to modulate.
+            symbol_period : foat or int
+                period between symbols.
+        Returns:
+            y : Signal
+                Modulated signal
+        """
         return 0
     
 def trange(n_samples, start = 0, period = 1):
