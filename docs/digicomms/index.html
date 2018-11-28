@@ -88,8 +88,34 @@
 
 <dl class="method">
 <dt id="digicomms.Signal.modulate">
-<code class="descname">modulate</code><span class="sig-paren">(</span><em>a</em>, <em>symbol_rate</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/digicomms/#Signal.modulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#digicomms.Signal.modulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">modulate</code><span class="sig-paren">(</span><em>symbols</em>, <em>symbol_rate</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/digicomms/#Signal.modulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#digicomms.Signal.modulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modulate a sequence of amplitudes at the given symbol rate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>symbols</strong> – ndarray, float or int
+sequence of symbols, i.e., amplitudes, to modulate.</li>
+<li><strong>symbol_period</strong> – foat or int
+period between symbols.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>Signal</dt>
+<dd><p class="first last">Modulated signal</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">y</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="digicomms.Signal.n_samples">

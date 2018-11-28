@@ -185,18 +185,19 @@
         <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Signal</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Signal.modulate"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal.modulate">[docs]</a>    <span class="k">def</span> <span class="nf">modulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">symbol_rate</span><span class="p">):</span>
-        <span class="c1"># &quot;&quot;&quot;</span>
-        <span class="c1"># Modulate a sequence of amplitudes at the given symbol rate.</span>
-        <span class="c1"># Parameters:</span>
-        <span class="c1">#     a : ndarray(float)</span>
-        <span class="c1">#         Sequence of amplitudes.</span>
-        <span class="c1">#     Tb : float</span>
-        <span class="c1">#         Symbol period. Should be integral multiple of the sampling rate Ts.</span>
-        <span class="c1"># Returns:</span>
-        <span class="c1">#     y : Signal</span>
-        <span class="c1">#         Modulated signal</span>
-        <span class="c1"># &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Signal.modulate"><a class="viewcode-back" href="../../digicomms/#digicomms.Signal.modulate">[docs]</a>    <span class="k">def</span> <span class="nf">modulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">symbols</span><span class="p">,</span><span class="n">symbol_rate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modulate a sequence of amplitudes at the given symbol rate.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            symbols : ndarray, float or int</span>
+<span class="sd">                sequence of symbols, i.e., amplitudes, to modulate.</span>
+<span class="sd">            symbol_period : foat or int</span>
+<span class="sd">                period between symbols.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            y : Signal</span>
+<span class="sd">                Modulated signal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">0</span></div></div>
     
 <div class="viewcode-block" id="trange"><a class="viewcode-back" href="../../digicomms/#digicomms.trange">[docs]</a><span class="k">def</span> <span class="nf">trange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">period</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
