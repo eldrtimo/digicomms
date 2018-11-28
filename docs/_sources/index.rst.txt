@@ -7,10 +7,9 @@ Welcome to digicomms's documentation!
 =====================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
-   digicomms
    modules
 
 Indices and tables

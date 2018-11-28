@@ -8,5 +8,5 @@ PYMODULE      = digicomms
 
 .PHONY: docs
 docs:
-	sphinx-apidoc -o $(SOURCEDIR) $(PYMODULE)
+	sphinx-apidoc -f -o $(SOURCEDIR) $(PYMODULE)
 	sphinx-build -b dirhtml $(SOURCEDIR) $(HTMLDIR)

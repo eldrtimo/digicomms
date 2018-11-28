@@ -197,7 +197,7 @@ def rcos(t,alpha=0.35):
 
 def rrcos(t,alpha=0.35):
     """
-    Raised cosine pulse. Note: 
+    Raised cosine pulse. Note: \[ Hello \] $Hello$
     """
     if np.isclose(alpha,0):
         y = np.sinc(t)
