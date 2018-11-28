@@ -1,38 +1,39 @@
 import numpy as np
 import scipy.signal as sig
 import scipy.stats as stats
+import matplotlib.pyplot as plt
 import warnings
 
 class Signal():
-    def __init__(self, x=None, start=0, period=1):
+    def __init__(self, samples=None, start=0, period=1):
         """
         Create a signal from its samples.
 
         Patameters:
-            x : ndarray
+            samples : ndarray
                 sampled values of signal
-            start : float
+            start : float or int
                 start time of signal
-             : float
-                sampling period
+            period : float or int
+                time between samples
         """
-        self._x      = x
+        self._samples = samples
         self._start  = start
         self._period = period
-
-    @property
-    def x(self):
-        """
-        Return the sample values of the signal.
-        """
-        return self._x
 
     @property
     def samples(self):
         """
         Return the sample values of the signal.
         """
-        return self._x
+        return self._samples
+
+    @property
+    def n_samples(self):
+        """
+        Number of samples of the signal.
+        """
+        return self.samples.shape[0]
     
     @property
     def period(self):
@@ -50,7 +51,14 @@ class Signal():
         """
         Number of samples in the signal.
         """
-        return self._x.size
+        return self._samples.size
+
+    @property
+    def shape(self):
+        """Shape of sample array. By convention, the first dimensions should always be
+the time index.
+        """
+        return self.samples.shape
     
     @property
     def rate(self):
@@ -86,21 +94,30 @@ class Signal():
 
         Note: changes the signal's period, rate, and end.
         """
-        self._period = self.size
-    
+        self._period = value / self.size
     
     @property
-    def t(self):
+    def time(self):
         """
         Array of sample times.
         """
-        return self.start + np.arange(self.size)*self.period
+        return self.start + np.arange(self.shape[0])*self.period
     
     def plot(self, ax=None, **kwds):
-        if ax:
-            ax.plot(self.t,self.x,**kwds)
+        if not ax:
+            ax = plt.gca()
+
+        if len(self.shape) == 1:
+            ax.plot(self.time,self.samples)
+        elif len(self.shape) == 2:
+            n_channels = self.shape[1]
+            for chan in range(n_channels):
+                channel_samples = self.samples[:,chan]
+                ax.plot(self.time,channel_samples)
         else:
-            plt.plot(self.t,self.x,**kwds)
+            pass
+
+        return ax
             
     def apply(self,f,scale=1,loc=0):
         """
@@ -114,7 +131,7 @@ class Signal():
         Returns:
             
         """
-        new_samples = f((self.x - loc)/scale)
+        new_samples = f((self.samples - loc)/scale)
         return Signal(new_samples,self.start,self.period)
         
     def convolve(self,h,**kwds):
@@ -160,7 +177,7 @@ class Signal():
                 Cropped signal.
         """
         start_idx = np.searchsorted(self.t,start)
-        return Signal(self.x[start_idx:start_idx+N],start,self.Ts)
+        return Signal(self.samples[start_idx:start_idx+N],start,self.Ts)
     
     def discretize(self,Ts,delay):
         """
